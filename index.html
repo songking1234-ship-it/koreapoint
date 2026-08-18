@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" style="background:#fff5ef;">
+<html lang="zh-Hant" style="background:#fff5ef;" data-app-version="2026-08-16-2">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -91,6 +91,20 @@
 </style>
 </head>
 <body>
+<script>
+// ---- auto-update: silently fetch fresh copy on every open, swap in if newer ----
+(function(){
+  try{
+    var cur = document.documentElement.getAttribute("data-app-version");
+    fetch(location.href, {cache:"no-store"}).then(function(r){return r.text();}).then(function(html){
+      var m = html.match(/data-app-version="([^"]+)"/);
+      if(m && cur && m[1] !== cur){
+        document.open();document.write(html);document.close();
+      }
+    }).catch(function(){});
+  }catch(e){}
+})();
+</script>
   <div class="top">
     <div class="eyebrow">FAMILY TRAVEL REWARDS</div>
     <h1>✈️ 我們的旅遊積分 🌏</h1>
