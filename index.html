@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" style="background:#fff5ef;" data-app-version="2026-08-16-2">
+<html lang="zh-Hant" style="background:#fff5ef;" data-app-version="2026-08-19-8">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -183,16 +183,23 @@ var GOALS=[{id:"jp",name:"日本 🇯🇵",pts:3000},{id:"kr",name:"韓國 🇰�
 function curGoal(){return GOALS.find(function(g){return g.id===DB.goal;})||GOALS[0];}
 
 // only THREE groups. English & AI live inside 大事 as high-value items.
+// items: [name, points, kids?] — kids array limits visibility to specific kid ids; omit = both see it
 var MENU=[
   {cat:"每天小事",emo:"🌟",color:"#e08a3c",note:"每項一天一次",daily:true,items:[
     ["功課準時完成",2],["整理房間書包",2],["幫忙做家事",2],["幫忙擺碗筷/收拾",2],
     ["閱讀30分鐘",2],["早起自理不用催",2],["運動15分鐘",2],["練琴/才藝練習",2],
-    ["聽/看英文15分鐘",2],["用英文說一件事/問問題",2]
+    ["聽/看英文15分鐘",2],["用英文說一件事/問問題",2],["寫下今天的心情",2]
   ]},
   {cat:"了不起的大事",emo:"🚀",color:"#3fa07e",items:[
     ["考試進步",15],["學會新技能",20],["讀完一本英文書",30],["通過英文檢定/一階",50],
-    ["旅行中用英文★",20],["用AI做出一個作品",15],["用AI查懂並講給你聽",10],
-    ["完成一場表演/比賽",20],["比賽獲獎/表現突出",15]
+    ["旅行中用英文★",20],
+    ["完成一場表演/比賽",20],["比賽獲獎/表現突出",15],["教別人一件學到的事",10,null,true]
+  ]},
+  {cat:"AI 專區",emo:"🤖",color:"#6c5ce0",note:"每項一天一次",items:[
+    ["用AI做出一個作品",15,["ting"],true],["用AI查懂並講給你聽",10,["ting"],true],
+    ["自己提問跟AI研究出答案",10,["ting"],true],
+    ["跟爸媽一起問AI一個問題",8,["pei"],true],["請AI說故事/畫一張圖",8,["pei"],true],
+    ["用AI語音練習英文對話",8,["pei"],true]
   ]},
   {cat:"紅線（扣分）",emo:"⚠️",color:"#e0705f",neg:true,items:[
     ["說謊",-5],["對人動手傷人",-5]
@@ -242,10 +249,12 @@ function renderMenu(){
     var note=sec.note?('<span style="margin-left:auto;font-size:10px;font-weight:700;color:#b0a090;-webkit-text-fill-color:#b0a090">'+sec.note+'</span>'):'';
     h+='<div class="sec-title" style="--sc:'+sec.color+'"><span class="bar2"></span><span class="emo">'+sec.emo+'</span>'+sec.cat+note+'</div><div class="btns">';
     sec.items.forEach(function(it){
+      if(it[2] && it[2].indexOf(DB.active)===-1) return; // skip items not meant for this kid
       var nm=it[0].replace(/\'/g,"");
-      if(sec.daily){
+      var isDaily = sec.daily || it[3]===true; // section-wide daily, or single-item daily cap
+      if(isDaily){
         var done=dd[nm];
-        var cls=done?"pbtn done":"pbtn";
+        var cls=done?"pbtn done":(it[1]>=10?"pbtn big":"pbtn");
         var right=done?"今天 ✓":"+"+it[1];
         h+='<button class="'+cls+'" style="--sc:'+sec.color+'" onclick="addDaily(\''+nm+'\','+it[1]+')"><span class="t">'+it[0]+'</span><span class="p">'+right+'</span></button>';
       }else{
